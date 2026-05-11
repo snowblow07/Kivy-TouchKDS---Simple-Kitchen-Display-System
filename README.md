@@ -1,79 +1,82 @@
-# Kitchen Display System (KDS)
+# KDS-Portfolio: Kitchen Display & Printer Emulator
 
-A production-ready Kitchen Display System and TCP Printer Emulator built with Python and Kivy.
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Tech Stack](https://img.shields.io/badge/stack-Python%20%7C%20Kivy%20%7C%20TCP-orange)
 
-## Project Overview
+## Overview
+The **KDS-Portfolio** is a production-ready software suite designed to modernize restaurant operations. It features a TCP network printer emulator that seamlessly intercepts raw print payloads from legacy Point of Sale (POS) systems, coupled with a responsive, graphical Kitchen Display System (KDS) built in Kivy. This project demonstrates expertise in network programming, file-based asynchronous processing, and UI development.
 
-This project provides a two-part solution for restaurant environments:
-1. **TCP Printer Emulator (`printer.py`)**: Intercepts raw TCP print jobs (typically sent to port 9100) from Point of Sale (POS) systems and saves them as text/print files.
-2. **Kitchen Display System (`kds.py`)**: A GUI application built with Kivy that polls the output directory, parses the raw receipt data into visual order tickets, tracks elapsed time, and allows kitchen staff to "bump" (complete) orders.
+## The Ecosystem Context
+In a typical hospitality technology stack, integrating modern visual systems with legacy POS software can be difficult due to proprietary protocols. This project bridges that gap without modifying the POS:
+- **Interceptor:** The `printer.py` module acts as a "virtual printer" on the network (port 9100), capturing raw data and saving it to a local queue.
+- **Visualizer:** The `kds.py` graphical interface continuously polls this queue, parses the text into actionable order tickets, and manages the lifecycle of the meal preparation.
 
-### Key Features
-- **Real-time Order Parsing:** Automatically detects, reads, and parses incoming print files.
-- **Visual Alert Timers:** Order tickets change color automatically (Green -> Yellow -> Red) based on configurable wait times.
-- **TCP Print Interception:** Acts as a network printer to seamlessly integrate with legacy POS systems.
-- **Responsive GUI:** Built with Kivy for cross-platform compatibility and touch-friendly interface.
+## Visuals
+![KDS Dashboard Interface](docs/assets/KDS_Dashboard.png)
+*Figure 1: The main Kitchen Display interface showing live orders with color-coded SLA timers (Green/Yellow/Red).*
+
+## Key Features
+- **Legacy POS Integration:** Emulates a standard TCP receipt printer to seamlessly capture data without POS modifications.
+- **Asynchronous File Polling:** Uses a decoupled file-based queue (`print_output` directory) ensuring the UI never blocks while receiving orders.
+- **Intelligent Order Parsing:** Extracts critical metadata (Order ID, Table, Server, Timestamp, Items) from raw unstructured text.
+- **Visual SLA Timers:** Tickets automatically transition from Green to Yellow to Red based on configurable wait-time thresholds.
+- **Cross-Platform GUI:** Built with the Kivy framework, making the KDS display runnable on Windows, macOS, Linux, and touch-enabled tablets.
 
 ## Tech Stack
-- **Backend/Networking:** Python, Sockets, Threading
+- **Languages:** Python 3.x
+- **Networking:** Native Python `socket` and `threading` libraries
 - **GUI Framework:** Kivy
-- **Configuration:** python-dotenv
+- **Configuration:** `python-dotenv`
 
-## Project Structure
-```text
-kds_portafolio/
-├── .env.example         # Environment variables template
-├── requirements.txt     # Python dependencies
-├── src/                 # Application source code
-│   ├── kds.py           # Kivy GUI Kitchen Display System
-│   └── printer.py       # TCP Network Printer Emulator
-├── tests/               # Unit and integration tests
-└── assets/              # Static assets and UI resources
-```
+## Getting Started
 
-## Setup Instructions
-
-### Prerequisites
-- Python 3.8+
-- Virtual Environment recommended.
-
-### Installation
-
-1. **Clone the Repository:**
+### Local Setup
+1. **Clone the repository:**
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/your-username/kds_portafolio.git
    cd kds_portafolio
    ```
 
-2. **Set up a Virtual Environment:**
+2. **Create a virtual environment:**
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install Dependencies:**
+3. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Configure Environment Variables:**
+4. **Environment Configuration:**
+   Copy the example environment file and adjust the ports/directories if needed.
    ```bash
    cp .env.example .env
-   # Edit .env and supply your desired ports and directory paths.
    ```
 
-### Usage
+## Usage / API Reference
 
-1. **Start the Printer Emulator:**
-   Listen for incoming print jobs on the configured network port.
-   ```bash
-   python src/printer.py
-   ```
+This system runs as two concurrent processes:
 
-2. **Start the KDS Dashboard:**
-   Launch the graphical interface to view and manage orders.
-   ```bash
-   python src/kds.py
-   ```
+**1. Start the Printer Emulator:**
+Listens for inbound POS traffic on port 9100.
+```bash
+python src/printer.py
+```
 
-*Note: Send raw text payloads to the configured TCP port (default 9100) from your POS system or using a network utility like `netcat` to test.*
+**2. Start the Kitchen Display System (KDS):**
+Launches the Kivy graphical interface.
+```bash
+python src/kds.py
+```
+
+**Testing:**
+You can simulate a POS sending a print job using `netcat` from another terminal:
+```bash
+cat tests/sample_order.txt | nc 127.0.0.1 9100
+```
+*The KDS UI will instantly populate with the new order ticket.*
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
